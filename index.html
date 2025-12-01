@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zona Crush - Mensajes Secretos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Zona Crush 💘</h1>
+
+<div id="main">
+    <textarea id="mensaje" placeholder="Escribe un mensaje secreto..."></textarea>
+    <button onclick="generar()">Generar enlace</button>
+
+    <div id="resultado" class="hidden">
+        <p>Enlace generado:</p>
+        <input id="link" readonly>
+        <button onclick="copiar()">Copiar enlace</button>
+    </div>
+</div>
+
+<!-- Modal de mensaje -->
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Mensaje recibido 💌</h2>
+        <p id="msg"></p>
+        <button onclick="cerrar()">Cerrar</button>
+    </div>
+</div>
+
+<!-- Footer con legales -->
+<footer>
+    <a href="privacidad.html">Política de Privacidad</a> |
+    <a href="terminos.html">Términos y Condiciones</a> |
+    <a href="cookies.html">Política de Cookies</a> |
+    <a href="legal.html">Aviso Legal</a>
+</footer>
+
+<!-- Banner de Cookies -->
+<div id="cookie-banner" class="cookie-banner hidden">
+    <p>Usamos cookies para mejorar tu experiencia y mostrar anuncios relevantes. Puedes aceptarlas o rechazarlas.</p>
+    <button id="acceptCookies">Aceptar</button>
+    <button id="rejectCookies" class="reject">Rechazar</button>
+</div>
+
+<script>
+// --- Generar mensaje cifrado ---
+function generar(){
+    let txt = document.getElementById("mensaje").value.trim();
+    if(!txt) return alert("Escribe un mensaje.");
+
+    let encoded = encodeURIComponent(btoa(txt)); 
+    let link = window.location.origin + window.location.pathname + "?msg=" + encoded;
+
+    document.getElementById("resultado").classList.remove("hidden");
+    document.getElementById("link").value = link;
+}
+
+// --- Copiar enlace ---
+function copiar(){
+    let input = document.getElementById("link");
+    input.select();
+    document.execCommand("copy");
+    alert("Enlace copiado");
+}
+
+// --- Leer mensaje desde la URL ---
+function leer(){
+    const url = new URLSearchParams(window.location.search);
+    if(!url.has("msg")) return;
+
+    let encoded = url.get("msg");
+    try {
+        let decoded = atob(decodeURIComponent(encoded));
+        document.getElementById("msg").innerText = decoded;
+        document.getElementById("modal").classList.remove("hidden");
+    } catch (e) {
+        console.log("Mensaje inválido");
+    }
+}
+
+function cerrar(){
+    document.getElementById("modal").classList.add("hidden");
+}
+
+window.onload = () => {
+    leer();
+
+    const consent = localStorage.getItem("cookieConsent");
+    if (!consent) {
+        document.getElementById("cookie-banner").classList.remove("hidden");
+    }
+
+    document.getElementById("acceptCookies").onclick = () => {
+        localStorage.setItem("cookieConsent", "accepted");
+        document.getElementById("cookie-banner").style.display = "none";
+    };
+
+    document.getElementById("rejectCookies").onclick = () => {
+        localStorage.setItem("cookieConsent", "rejected");
+        document.getElementById("cookie-banner").style.display = "none";
+    };
+};
+</script>
+
+</body>
+</html>
+
+
